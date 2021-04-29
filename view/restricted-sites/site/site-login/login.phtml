@@ -1,0 +1,31 @@
+<?php
+$translate = $this->plugin('translate');
+$hyperlink = $this->plugin('hyperlink');
+$urlHelper = $this->plugin('url');
+?>
+
+<section class="hero-section">               
+<div class="hero__slider owl-carousel">
+    <div class="hero__item set-bg" data-setbg="<?php echo $this->assetUrl('images/hero/hero-1.png'); ?>">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="hero__text">
+                        <h5>Eduquer à l'esprit critique avec l'IA</h5>
+                        <h2>Les olympiades de l'argumentation</h2>
+                        <?php echo $hyperlink($translate('Log in'), $urlHelper('login'), ['class' => 'login']); ?>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero__img">
+                        <img src="<?php echo $this->assetUrl('images/hero/hero-right.png'); ?>" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+<!-- Hero Section End -->
+<!-- Footer Section Begin -->
+<?php echo $this->partial('polemika/footer');?>

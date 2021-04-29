@@ -1,0 +1,122 @@
+<?php
+$json = $this->params()->fromQuery('json') ? $this->params()->fromQuery('json') : $this->params()->fromPost('json', '');
+if($json){
+    echo $this->content;
+    return ;
+}
+
+$nav = $site->publicNav();
+$container = $nav->getContainer();
+$activePage = $nav->findActive($container);
+
+
+
+$translate = $this->plugin('translate');
+$this->headMeta()->setCharset('utf-8');
+$this->headMeta()->appendName('description', "Polemika : les olympiades de l'argumentation. Eduquer à l'esprit critique avec L'IA.");
+
+$this->headMeta()->appendName('author', "Erwann Brottier, Samuel Szoniecky");
+$this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1');
+
+$this->headTitle("Polemika : les olympiades de l'argumentation")->setSeparator(' · ');
+
+$this->headScript()->appendFile($this->assetUrl('js/proto.js'));
+$this->headScript()->appendFile($this->assetUrl('js/reseau.js'));
+$this->headScript()->appendFile($this->assetUrl('js/arbre.js'));
+$this->headScript()->appendFile($this->assetUrl('js/menuSunburst.js'));
+$this->headScript()->appendFile($this->assetUrl('js/geoLoc.js'));
+$this->headScript()->appendFile($this->assetUrl('js/svgProgressBar.js'));
+$this->headScript()->appendFile($this->assetUrl('js/anime.min.js'));
+
+$this->headLink()->appendStylesheet($this->assetUrl('css/fonts.googleapis.montserrat.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/bootstrap.min.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/font-awesome.min.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/elegant-icons.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/flaticon.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/owl.carousel.min.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/slicknav.min.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/style.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/magicCms-modal.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/custom-style.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/polemika.css'));
+$this->headLink()->prependStylesheet($this->assetUrl('css/user-bar.css', 'Omeka'));
+$this->headLink()->prependStylesheet('//fonts.googleapis.com/css?family=Source+Code+Pro|Lato:400,400italic,700,700italic');
+
+//pour l'autocompletion
+$this->headLink()->appendStylesheet($this->assetUrl('css/jquery-ui.css'));
+
+$this->headLink(array('rel'  => 'manifest','href' => $this->assetUrl('../manifest.json')));
+
+
+
+$this->trigger('view.layout');
+
+?>
+<?php echo $this->doctype(); ?>
+<?php echo $this->htmlElement('html')->setAttribute('lang', $this->lang()); ?>
+    <head>
+        <?php echo $this->headMeta(); ?>
+        <link rel="shortcut icon" href="<?php echo $this->assetUrl('img/favicon.ico'); ?>" type="image/x-icon" />
+        <?php echo $this->headTitle(); ?>
+        <?php echo $this->headLink(); ?>
+        <?php echo $this->headStyle(); ?>
+        <?php echo $this->headScript(); ?>
+        <script src="<?php echo $this->assetUrl('/js/jquery-3.3.1.min.js');?>"></script>
+
+    </head>
+  <body>
+
+    <div id="content">
+        <div id="preloder">
+            <div class="loader"></div>
+        </div>
+        <?php echo $this->partial('polemika/offcanvas');?>
+
+        <!-- Header Section Begin -->
+        <header class="header-section">
+            <?php echo $this->partial('polemika/header-info');?>
+            <?php echo $this->partial('polemika/menu-haut', ["site"=>$this->site]);?>                
+        </header>
+        <!-- Header End -->
+        <!-- Hero Section Begin -->
+        <?php 
+        echo $this->content; 
+        ?>            
+        <!-- Hero Section End -->
+        <?php echo $this->messages(); ?>
+    </div>
+    <?php echo $this->partial('polemika/modal-mc');?>
+
+        <script src="<?php echo $this->assetUrl('js/jquery-3.3.1.min.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('/js/jquery.slicknav.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('/js/owl.carousel.min.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('/js/main.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('js/jquery-ui.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('js/popper.min.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('js/bootstrap.min.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('js/orchestrator.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('js/MagicObject.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('js/MagicNode.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('js/McButton.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('js/McModal.js');?>"></script>
+        <script src="<?php echo $this->assetUrl('js/spin.min.js');?>"></script>
+
+    </body>
+
+    <!-- register service worker -->
+    <script>
+        $(".loader").fadeOut();
+        $("#preloder").delay(200).fadeOut("slow");
+
+        /*
+        if ('serviceWorker' in navigator) {
+        	window.addEventListener('load', function() { 
+        		navigator.serviceWorker.register('<?php echo $this->assetUrl('js/service-worker.js');?>')
+        			.then(function() { console.log("Service Worker Registered, Cheers to PWA Fire!"); });
+        		}
+        	);
+        }
+        */
+    </script>
+    <!-- end of service worker -->
+</html>

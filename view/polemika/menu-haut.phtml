@@ -1,0 +1,35 @@
+<?php
+$site = $this->vars('site');
+$nav = $site->publicNav();
+$container = $nav->getContainer();
+$activePage = $nav->findActive($container);
+?>
+<div class="container">
+
+    <div class="row">
+            <div class="col-lg-3 col-md-3">
+                <div class="header__logo">
+                    <a href="<?php echo $site->slug();?>" style="font-size: 2rem; color:white; margin-top: -6px; font-weight: 500;">
+                    POLEMIKA
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <nav class="header__menu">
+                    <ul>
+                            <?php foreach($container as $page): ?>
+                            <li <?php if($activePage && $page->label == $activePage['page']->label) echo 'class="active"';?> >
+                            <?php
+                            echo $this->navigation()->menu()->htmlify($page) . PHP_EOL; 
+                            ?>
+                            </li>
+                            <?php endforeach; ?>
+                    </ul>
+                </nav>                
+            </div>
+    </div>
+    <div class="canvas__open">
+        <span class="fa fa-bars"></span>
+    </div>
+</div>
+

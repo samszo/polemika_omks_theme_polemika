@@ -1,0 +1,42 @@
+<?php
+$site = $this->vars('site');
+$nav = $site->publicNav();
+$container = $nav->getContainer();
+$activePage = $nav->findActive($container);
+$userBar = $this->userBar();
+
+?>
+
+    <!-- Offcanvas Menu Begin -->
+    <div class="offcanvas__menu__overlay"></div>
+    <div class="offcanvas__menu__wrapper">
+        <div class="canvas__close">
+            <span class="fa fa-times-circle-o"></span>
+        </div>
+        <div class="offcanvas__logo">
+            <a href="#"><!--<img src="media/images/logo.png" alt="">-->POLEMIKA</a>
+        </div>
+        <nav class="offcanvas__menu mobile-menu">
+            <ul>
+                <?php foreach($container as $page): ?>
+                <li <?php if($page->label == $activePage['page']->label) echo 'class="active"';?> >
+                <?php
+                echo $this->navigation()->menu()->htmlify($page) . PHP_EOL; 
+                ?>
+                </li>
+                <?php endforeach; ?>
+            </ul>
+        </nav>
+        <div id="mobile-menu-wrap"></div>
+        <div class="offcanvas__auth">
+            <?php echo $userBar;?>
+        </div>
+        <!--
+        <div class="offcanvas__info">
+            <ul>
+                <li><span class="icon_phone"></span> +1 123-456-7890</li>
+                <li><span class="fa fa-envelope"></span> Support@gmail.com</li>
+            </ul>
+        </div>-->
+    </div>
+    <!-- Offcanvas Menu End -->

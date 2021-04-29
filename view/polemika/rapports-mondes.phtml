@@ -1,0 +1,358 @@
+<?php
+    $user = $this->identity();
+
+    $site = $this->vars('site');
+    $nav = $site->publicNav();
+    $container = $nav->getContainer();
+    $activePage = $nav->findActive($container);
+    $flux = $activePage['page']->label;    
+    $translate = $this->plugin('translate');
+    $props = $this->pageProps();
+    $props['site']=$site;
+    $urls = $this->pageUrls($props,null,$flux);
+
+    //récupère le crible de la page
+    $crible = $this->CribleFactory($flux);
+
+    //récupère toutes les photos 
+    //$photos = $this->getPhotos();
+    //récupère une photo aléatoire
+    //$photos = $this->getPhotos('alea',1);
+    //récupère une photo aléatoire qui à un monde
+    $photos = $this->getPhotos('alea',1,['property'=>[['joiner'=>'and','property'=>$props['plmk:hasMonde']->id(),'type'=>'ex']]]);
+    //récupère les concepts des mondes
+    //$mondes = $this->getConceptsMondes();//sous forme de graph    
+    //$concept = $mondes['nodes'][array_rand($mondes['nodes'])];
+    $arbreMonde = $this->getConceptsMondes(10,'tree');//sous forme d'arbre
+
+
+?>
+    <section class="hero-section">               
+        <div class="container information">
+            <div class="row" >
+                <div id='colGauche' class="col-lg-6 col-md-12">
+                    <div id='prgIma'></div>
+                    <div class="text-center">
+                    <img id='imaMonde' style="max-height:500px;" class="img-fluid" src="<?php echo $photos[0]['medias']['large'];?>" alt="" />
+                    </div>
+                </div>
+                <div id='colTxt' class="col-lg-6 col-md-12">
+                    <div id='prgTxt'></div>
+                    <div class="ui-widget" id='acChercheConcept' style="display: none;">
+                        <label for="mondes" style="float: left;color:white;">Saisir un concept : </label>
+                        <div id="spin-cartes" style="display: none;"
+                                class="spinner-border spinner-border-sm"
+                                role="status">
+                                <span class="sr-only">Chargement...</span>
+                        </div>
+                        <input class="form-control" style="float: left;width:70%;height: 24px;" id="chercheConcept" >
+                    </div>
+
+                    <!--
+                    <img id="btnDetails" style="height: 40px;float:left;" src="<?php echo $this->assetUrl('images/project-diagram-solid-white.svg'); ?>" />
+                    -->
+                    <div id='txtReseau'></div>
+                    <div class="form-group">
+                        <label class='lblRangeG' ><?php echo $crible['concepts'][0]->displayTitle();?></label>
+                        <input type="range" min="0" max="100" class="form-control-range" id="rangeRapport">
+                        <label class='lblRangeD' ><?php echo $crible['concepts'][1]->displayTitle();?></label>
+                    </div>                  
+                </div>
+            </div>
+        </div>
+    </section>
+
+<script src="<?php echo $this->assetUrl('js/d3.V6.min.js');?>"></script>
+
+<script>
+    const arbreMonde = d3.hierarchy(<?php echo json_encode($arbreMonde);?>)
+    , urlAleaTof = '<?php echo $urls['aleaPhotoMondes'];?>'
+
+    , urlAjoutRapports = '<?php echo $urls['ajoutRapport'];?>'
+
+    , crible = <?php echo json_encode($crible);?>
+
+    , aleaMonde = d3.randomInt(0, arbreMonde.descendants().length)
+    , flux = '<?php echo $flux;?>'
+
+    , idCarto = 'range'
+    , actant = <?php echo json_encode(['id'=>$user->getId(),'nom'=>$user->getName()]);?>;
+
+    let svgPrgIma, svgPrgTxt
+    , concept = getAleaConcept() 
+    , image = <?php echo json_encode($photos[0]);?>
+
+    , geo = new Geo();
+	geo.getPosition(function(coords) {}); // just for ask the user for its approval when starting the app
+ 
+
+
+$(function() {
+    //passage en noir
+    d3.select('body').style('background-color','black');
+    d3.select('.footer-section').style('background-color','black');
+
+    //création des progress bar
+    svgPrgIma = new svgProgressBar({'idCont':'prgIma','fctEnd':changeIma});    
+    svgPrgIma.start();
+    svgPrgTxt = new svgProgressBar({'idCont':'prgTxt'
+        ,'fctEnd':changeTxt,'fctPause':showChercheTxt,'fctPlay':hideChercheTxt
+        ,'duree':15});    
+    svgPrgTxt.start();
+    showDetails();
+    window.setTimeout(svgPrgIma.pause, 3000);
+    window.setTimeout(svgPrgTxt.pause, 3000);
+
+    //initialisation de l'interactivité
+    d3.select('#rangeRapport').on('change',setPosi);
+    setAutoComplete('chercheConcept')
+    /*
+    d3.select('#btnDetails')
+        .style('cursor','pointer')
+        .on('click',showDetails);
+    */
+
+});
+
+function hideChercheTxt(){
+    d3.select('#acChercheConcept').style('display','none');
+}
+
+function showChercheTxt(){
+    //montre l'autocomplète
+    d3.select('#acChercheConcept').style('display','block');
+}
+
+
+function setAutoComplete(id){
+
+$("#"+id)
+        // don't navigate away from the field on tab when selecting an item
+        .on("keydown", function (event) {
+                if (event.keyCode === $.ui.keyCode.TAB &&
+                        $(this).autocomplete("instance").menu.active) {
+                        event.preventDefault();
+                }
+        })
+        .autocomplete({
+                minLength: 3,
+                source: function (request, response) {
+                        searchTerm = request.term;
+                        d3.select('#spin-'+id).style('display', 'inline-block');
+                        d3.select('#icon-'+id).style('display', 'none');
+                        let doublons = [];
+                        let rs = arbreMonde.descendants().filter(c=>{
+                            if(c.data.name.indexOf(searchTerm)>-1 && !doublons[c.data.id]){
+                                doublons[c.data.id]=1;
+                                return true;
+                            }
+                            return false;
+                        })                         
+                        response(rs);
+                },
+                focus: function () {
+                        // prevent value inserted on focus
+                        return false;
+                },
+                select: function (event, ui) {
+                        if(id=='chercheConcept'){
+                            concept =ui.item;
+                            showDetails();
+                        }
+                        this.value = "";
+                        return false;
+                },
+        }).data("ui-autocomplete")._renderItem = function (ul, item) {
+                const regex = new RegExp(searchTerm, "gi");
+                //récupère le chemin du concept
+                let label = "";
+                item.ancestors().forEach(c=>label+=' -> '+c.data.name);
+                let html = '<a>' + label.replace(regex, '<span class="findTerm">' + searchTerm + '</span>') + '</a>';
+                return $("<li></li>")
+                        .data("item.autocomplete", item)
+                        .append(html)
+                        .appendTo(ul);
+        };
+}
+
+function getAleaConcept(){
+    let alea = aleaMonde();
+    return  arbreMonde.descendants()[alea];
+}
+
+function showDetails(){
+    //récupère le reseau de la branche du concept
+    let conceptGraph = {'nodes':[],'links':[]}
+    ,anc = concept.ancestors()
+    ,des = concept.descendants()
+    ,nSrc=false;
+    anc.forEach(n=>{
+        conceptGraph['nodes'].push({id: n.data.id, size: 1
+            , txtColor: n.data.id!=concept.data.id ? 1 : 10
+            , group: 'branche'
+            , size: 5
+            , fct: n.data.id!=concept.data.id ? false : {'mousedown':mousedown,"mouseup":mouseup,"mouseout":mouseup}
+            , title: n.data.name}); 
+        nSrc = n.ancestors();                 
+        if(nSrc[1]){
+            conceptGraph['links'].push({target: n.data.id
+                    , source: nSrc[1].data.id, value: 1
+                    , txtColor: 1
+                    , group: "branche"});  
+        }
+    })
+    des.forEach(n=>{
+        if(n.data.id!=concept.data.id){
+            conceptGraph['nodes'].push({id: n.data.id, size: 1
+                , txtColor: 2
+                , size: 5
+                , group: "branche", title: n.data.name});  
+        }
+        nSrc = n.ancestors();                 
+        if(nSrc[1]){
+            conceptGraph['links'].push({target: n.data.id, source: nSrc[1].data.id, value: 1, group: "descendants"});  
+        }
+    })
+    //affiche le réseau
+    showReseau(conceptGraph);
+
+}
+
+function pondereNode(e,n){
+    n.size+=1;
+    d3.select(e.target).attr('r',n.size);
+}
+
+var mousedownID = -1, curE, curD;  //Global ID of mouse down interval
+function mousedown(e, d) {
+  curE = e;
+  curD = d;  
+  if(mousedownID==-1)  //Prevent multimple loops!
+     mousedownID = setInterval(whilemousedown, 100 /*execute every 100ms*/);
+}
+function mouseup(e, d) {
+   if(mousedownID!=-1) {  //Only stop if exists
+     clearInterval(mousedownID);
+     mousedownID=-1;
+   }
+}
+function whilemousedown() {
+    pondereNode(curE,curD);
+}
+
+
+function showReseau(data){
+    let container = d3.select("#colTxt");
+    d3.select('#txtReseau').select('svg').remove();
+    d3.select('#txtReseau').style('display','block');
+    var r = new reseau({'idCont':'txtReseau'
+        ,'width':container.node().clientWidth,'height':container.node().clientHeight
+        ,'data':data});
+}
+
+
+function setPosi(e){
+
+    let lat=0, lng=0;
+    //message pour patienter
+    d3.select('#modWaitLbl').text("Merci de patienter...");                
+    d3.select('#waitError').style('display','none');
+    d3.select('#waitFermer').style('display','none');
+    d3.select('#waitloader').style('display','block');    
+    $('#modWait').modal('show');
+    geo.getPosition(function(coords) {
+        if (coords) {
+            lat = coords.latitude;
+            lng = coords.longitude;
+        }
+
+        let val = e.target.value
+        , start = new Date()
+        , strDate = start.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })    
+        , omk = {
+            'dcterms:title':flux+' _ '+image.title+' _ '+concept.data.name+' : '+actant.nom+' '+strDate
+            ,'dcterms:isReferencedBy':image.id+'_'+concept.data.id+'_'+crible.item['o:id']+' : '+start.valueOf()+' : '+actant.id
+            ,'jdc:creationDate':start
+            ,'ma:hasCreator':[{'type':'items','value':actant.id}]
+            ,'jdc:hasActant':[{'type':'items','value':actant.id}]
+            ,'ma:hasRating':[]
+            ,'ma:isRatingOf':[]
+            ,'ma:ratingScaleMax':100
+            ,'ma:ratingScaleMin':0
+            ,'ma:hasRatingSystem':[{'type':'items','value':crible.item['o:id']}]
+            ,'ma:locationLatitude':lat
+            ,'ma:locationLongitude':lng
+            ,'jdc:hasDoc':[{'type':'media','value':image.id},{'type':'items','value':concept.data.id}]
+            ,'jdc:distanceCenter':val
+            ,'jdc:hasConcept':[]
+            ,'jdc:distanceConcept':[]
+            ,'jdc:x':val
+            ,'jdc:y':0
+            ,'jdc:xRatingValue':val
+            ,'jdc:yRatingValue':0
+        };
+
+        crible.concepts.forEach(function(c, i){
+            omk['ma:hasRating'].push(i==0 ? val : 100 - val);
+            omk['ma:isRatingOf'].push({'type':'items','value':c['o:id']});
+            omk['jdc:hasConcept'].push({'type':'items','value':c['o:id']});
+            omk['jdc:distanceConcept'].push(i==0 ? val : 100 - val);
+
+        })
+
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: urlAjoutRapports,
+            data: {
+                    'json':true,
+                    'rt': 'Position sémantique : sonar',
+                    'rapports': omk
+            }
+            }).done(function(data) {
+                d3.select('#waitloader').style('display','none');    
+                d3.select('#waitFermer').style('display','block');
+                d3.select('#modWaitLbl').text("Position enregistrée");                
+                setTimeout(function(){
+                    $('#modWait').modal('hide');
+                }, 500);
+            })
+            .fail(function(e) {
+                    //throw new Error("Sauvegarde imposible : " + e);
+                    d3.select('#modWaitLbl').text("Sauvegarde imposible");                
+                    d3.select('#waitError').style('display','block').html(e.responseText);
+                    d3.select('#waitFermer').style('display','block');
+                    d3.select('#waitloader').style('display','none');    
+                    
+            });
+    });
+
+}
+
+
+function changeIma(){
+    $.ajax({
+        url: urlAleaTof,
+        dataType: "json",
+        success: function (data) {
+            image = data[0];
+            d3.select('#imaMonde').attr('src',image['medias']['large']);            
+            svgPrgIma.start();
+        },
+        fail:function (e) {
+            console.error(e)
+        },
+    });
+
+}
+
+function changeTxt(){
+    //d3.select('#txtReseau').style('display','none');
+    concept = getAleaConcept();
+    //d3.select('#txtMonde').html(concept.title);
+    svgPrgTxt.start();
+    showDetails();
+}
+
+</script>  
+<?php echo $this->partial('polemika/modal-wait');?>

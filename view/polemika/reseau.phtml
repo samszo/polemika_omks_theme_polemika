@@ -1,0 +1,40 @@
+<?php
+
+$site = $this->vars('site');
+$translate = $this->plugin('translate');
+$props = $this->pageProps();
+$props['site']=$site;
+$urls = $this->pageUrls($props,null,"reseau");
+
+?>
+<section class="hero-section">               
+
+<div class="hero__slider owl-carousel">
+    <div class="hero__item set-bg" data-setbg="<?php echo $this->assetUrl('images/hero/hero-1.png'); ?>">
+        <div class="container">
+            <div class="row" id="cartoReseau" style="height:800px;background-color:white;margin-top:10px;">
+
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+<script>
+
+var container,width;
+$(function() {
+    showCartoReseau();
+
+});
+function showCartoReseau(){
+    container = d3.select(".container");
+    width = container.node().clientWidth;
+    height= window.innerHeight - container.node().clientHeight;
+
+    d3.select("#cartoReseau").select('svg').remove();
+    d3.select('#cartoReseau').style('display','block');
+    var r = new reseau({'idCont':'cartoReseau','width':width,'height':height
+                    ,'dataUrl':"<?php echo $urls['getDataReseau'];?>"});
+}
+
+</script>

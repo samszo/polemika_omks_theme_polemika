@@ -1,0 +1,48 @@
+<?php
+    $user = $this->identity();                
+
+?>
+<!-- Hero Section Begin -->
+<section class="hero-section">
+	<div class="">
+		<div class="hero__item set-bg" data-setbg="<?php echo $this->assetUrl('images/hero/hero-1.png'); ?>" style="height: 945px;">
+			<div class="container information">
+				<div class="row">
+					<div class="col-lg-6 col-md-12">
+						<img style="width:100%;" class="infoElt infoImg" src="" alt="" />
+					</div>
+					<div class="col-lg-6 col-md-12">
+						<p class="infoElt infoText">
+						</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-12 flex">
+						<a href="#" class="primary-btn flexCentered boutonQualifier hidden">Qualifier</a>
+					</div>
+					<div class="col-lg-12">
+						<pre class="result"></pre>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script src="<?php echo $this->assetUrl('js/d3.V5.min.js');?>"></script>
+<script src="<?php echo $this->assetUrl('js/renderEngine.js');?>"></script>
+<script src="<?php echo $this->assetUrl('js/mustache.min.js');?>"></script>
+<script src="<?php echo $this->assetUrl('js/qualification.js');?>"></script>
+<script src="<?php echo $this->assetUrl('js/menu-qualification.js');?>"></script>
+
+  <script>
+  const actant = <?php echo json_encode(['id'=>$user->getId(),'nom'=>$user->getName()]);?>;
+
+  $(function() {
+	try {
+        	var proto = new Qualification();			
+        } catch(e) {
+        	console.log("error", e);
+        }
+    });
+    </script>  
