@@ -1,0 +1,133 @@
+<div id="container">
+    <div class="container">
+        <div class="page-content row mb-4 mt-4 mx-0">
+            <div class="col-12">
+                <div class="polemika-editor-container">
+                    <div class="polemika-editor-menu">
+                        <!-- menu -->
+                        <div class="carte-selector form-group form-group-flex">
+                            <label for="carte-selector-input1">Carte :</label>
+                            <input type="text" class="form-control" id="carte-selector-input1" placeholder="http(s)://...">
+                            <label for="carte-selector-select1">Layout :</label>
+                            <select class="carte-layout-selector form-control" id="carte-selector-select1">
+                                <option selected>full</option>
+                                <option>split-v</option>
+                                <option>split-h</option>
+                            </select>
+                            <!--<button action="test">XXX</button>-->
+                        </div>
+                        <div class="panel-multipanes">
+                            <div class="panel panel-adder hide selected">
+                                <!-- dynamic content -->
+                            </div>
+                            <div class="panel panel-edition hide">
+                                <div class="form-group form-group-flex">
+                                    <label for="text-editor-input1">Valeur :</label>
+                                    <div class="text-container form-control" style="display: flex; height: auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="polemika-editor-instance-container" tabindex=0>
+                        <!-- editor -->
+                        <!--
+                        <div class="polemika-editor-instance hide selected">
+                        </div>
+                        <div class="polemika-editor-instance hide"></div>
+                        -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal nodeStyleModal -->
+<button type="button" class="btn btn-primary hidden" data-toggle="modal" data-target="#nodeStyleModal"></button>
+<div class="modal fade" id="nodeStyleModal" tabindex="-1" role="dialog" aria-labelledby="nodeStyleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nodeStyleModalLabel">Propriétés de style</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row" data-input-field="name">
+                    <div class="col-4">Nom</div>
+                    <div class="col-8"><input data-field="name" type="text" value="AAA"></div>
+                </div>						
+                <div class="row group-panel-name">
+                    <div class="col-12">
+                        Propriétés de la forme
+                    </div>
+                </div>
+                <div class="row group-panel">
+                    <div class="col-6">Couleur de la bordure</div>
+                    <div class="col-6"><input data-css-field="border-color" class="color-picker" value='#276cb8'/></div>
+                    <div class="col-6">Epaisseur de la bordure (px)</div>
+                    <div class="col-6"><input data-css-field="border-width" type="text" value="1"></div>
+                    <div class="col-6">Couleur de fond</div>
+                    <div class="col-6"><input data-css-field="background-color" class="color-picker" value='#276cb8'/></div>
+                </div>
+                <div class="row group-panel-name">
+                    <div class="col-12">
+                        Propriétés du texte
+                    </div>
+                </div>
+                <div class="row group-panel">
+                    <div class="col-6">Couleur du texte</div>							
+                    <div class="col-6"><input data-css-field="color" class="color-picker" value='#276cb8'/></div>
+                    <div class="col-6">Style du texte</div>
+                    <div class="col-6">
+                        <button data-css-field="font-weight" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" style="font-weight: bolder;">B</button>
+                        <button data-css-field="font-style" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" style="font-style: italic;">I</button>
+                    </div>
+                </div>
+                <div class="row group-panel-name">
+                    <div class="col-12">
+                        Rendu
+                    </div>
+                </div>
+                <div class="row group-panel">
+                    <div class="col-12">
+                        <div class="nodeArchetype">
+                            CCC
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" action="close" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" action="save">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal reificationModal -->
+<button type="button" class="btn btn-primary hidden" data-toggle="modal" data-target="#reificationModal"></button>
+<div class="modal fade" id="reificationModal" tabindex="-1" role="dialog" aria-labelledby="reificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reificationModalLabel">Création archétype</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row" data-input-field="name">
+                    <div class="col-4">Nom</div>
+                    <div class="col-8"><input data-field="name" type="text" value=""></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" action="close" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" action="create">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+

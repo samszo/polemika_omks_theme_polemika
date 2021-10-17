@@ -82,8 +82,10 @@
     , concept = getAleaConcept() 
     , image = <?php echo json_encode($photos[0]);?>
 
-    , geo = new Geo();
-	geo.getPosition(function(coords) {}); // just for ask the user for its approval when starting the app
+    , geo = new Geo(), coords;
+	geo.getPosition(function(c) {
+        coords=c
+    }); // just for ask the user for its approval when starting the app
  
 
 
@@ -260,7 +262,7 @@ function setPosi(e){
     d3.select('#waitFermer').style('display','none');
     d3.select('#waitloader').style('display','block');    
     $('#modWait').modal('show');
-    geo.getPosition(function(coords) {
+    //geo.getPosition(function(coords) {
         if (coords) {
             lat = coords.latitude;
             lng = coords.longitude;
@@ -325,7 +327,7 @@ function setPosi(e){
                     d3.select('#waitloader').style('display','none');    
                     
             });
-    });
+    //});
 
 }
 
